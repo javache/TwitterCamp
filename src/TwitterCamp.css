@@ -1,0 +1,11 @@
+/* CSS file */
+@namespace mx "library://ns.adobe.com/flex/halo";
+
+.LargeText
+{
+	font-family: Georgia;
+	font-size: 32;
+	text-align: center;
+	color: #1A1A1A;
+	vertical-align: middle;
+}
