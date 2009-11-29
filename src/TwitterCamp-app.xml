@@ -14,7 +14,7 @@
 -->
 
 	<!-- The application identifier string, unique to this application. Required. -->
-	<id>be.thinkjavache.TwitterCamp</id>
+	<id>be.thinkjavache.TwitterCampGhent</id>
 
 	<!-- Used as the filename for the application. Required. -->
 	<filename>TwitterCamp</filename>
