@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+		   xmlns:controls="qs.controls.*"
+		   creationComplete="handle_creationComplete()"
+		   creationCompleteEffect="{bounceIn}"
+		   width="325" height="200">
+	<!--
+	Copyright (c) 2007 Daniel Dura
+	
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+	
+	The above copyright notice and this permission notice shall be included in
+	all copies or substantial portions of the Software.
+	
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+	THE SOFTWARE.
+	-->					   
+	<mx:Script>
+		<![CDATA[
+			import com.adobe.twittercamp.models.TwitterCampModel;
+			import mx.events.EffectEvent;
+			import mx.effects.easing.Exponential;
+			import mx.effects.easing.Cubic;
+			import mx.effects.easing.Quadratic;
+			import mx.effects.easing.Sine;
+			import mx.effects.easing.Bounce;
+			import mx.effects.easing.Elastic;
+			import com.adobe.twittercamp.assets.flash.FlashAssets;
+			import com.adobe.services.twitter.TwitterStatus;
+			
+			private var _twitterStatus:TwitterStatus;
+			
+			public var creationTime:Date = new Date();
+			public var nextStatus:TwitterStatus;
+			
+			private var updateRelativeTimeLabelTimer:Timer;
+			
+			private function handle_creationComplete():void
+			{
+				updateRelativeTimeLabelTimer = new Timer( 60000 );
+				updateRelativeTimeLabelTimer.addEventListener( TimerEvent.TIMER, handle_updateRelativeTimeLabelTimer );
+				updateRelativeTimeLabelTimer.start();
+				
+				updateRelativeTime();
+			}
+			
+			private function handle_updateRelativeTimeLabelTimer( event:TimerEvent ):void
+			{
+				updateRelativeTime();
+			}
+			
+			private function updateRelativeTime():void
+			{
+				relativeTime.text = (twitterStatus) ? twitterStatus.relativeCreatedAt : "";
+			}
+			
+			public function kill( nextStatus:TwitterStatus ):void
+			{
+				creationTime = new Date();
+				this.nextStatus = nextStatus;
+				killEffect.play( [this] );
+			}
+			
+			public function handle_killEffectEnd( event:EffectEvent ):void
+			{
+				twitterStatus = this.nextStatus;
+				bounceIn.play();
+			}
+			
+			[Bindable]
+			public function set twitterStatus( value:TwitterStatus ):void
+			{
+				_twitterStatus = value;
+				invalidateDisplayList();
+			}
+			public function get twitterStatus():TwitterStatus
+			{
+				return _twitterStatus;
+			}
+			
+			override protected function updateDisplayList(unscaledWidth:Number, unscaledHeight:Number):void
+			{
+				super.updateDisplayList( unscaledWidth, unscaledHeight );
+				
+				updateRelativeTime();
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:Sequence id="bounceIn">
+		<mx:Parallel>
+			<mx:Fade duration="250" alphaFrom="0" alphaTo="1" />
+			<mx:Zoom easingFunction="{Bounce.easeOut}"
+					 zoomHeightFrom="0.5" zoomWidthFrom="0.5"
+					 zoomHeightTo="1" zoomWidthTo="1"
+					 duration="750" />
+		</mx:Parallel>
+	</mx:Sequence>
+	
+	<mx:Fade id="killEffect" alphaFrom="1" alphaTo="0" duration="3000"
+			 easingFunction="{Exponential.easeIn}"
+			 effectEnd="handle_killEffectEnd(event)"/>
+	
+	<mx:SWFLoader source="{FlashAssets.bubble}"
+				  filters="{[new DropShadowFilter( 4, 45, 0x333333, 0.4 )]}" left="10" right="10" top="10" bottom="68"/>
+	<mx:VBox height="112" width="246" verticalCenter="-28" left="15" verticalAlign="middle">
+		<mx:TextArea fontSize="14" fontWeight="bold" text="{twitterStatus.text}"  width="238" height="100%" backgroundAlpha="0.0" borderThickness="0"/>
+	</mx:VBox>
+	<controls:SuperImage source="{this.twitterStatus.user.profileImageUrl}"
+						 width="45" height="45" bottom="13" left="28"
+						 borderStyle="solid" borderThickness="2" borderColor="#FFFFFF" alpha="1.0" themeColor="#009DFF"/>
+	<mx:Label text="{this.twitterStatus.user.name}" color="#FFFFFF" fontSize="14" bottom="34" top="140" width="214" right="24" textAlign="left"/>
+	<mx:Label id="relativeTime" color="#FFFFFF" fontSize="12" bottom="13" right="23" left="87" top="166" textAlign="left"/>
+	
+</mx:Canvas>
