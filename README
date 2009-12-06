@@ -1,0 +1,10 @@
+TwitterCamp is an Adobe Flex-application to graphically display tweets around a certain subject.
+A certain programming-experience is required to customize, no settings are provided.
+
+The app is built according to the principles of Model-View-Controller.
+The model consists out of a TwitterSearch-instance, that will automatically refresh its 
+tweets and notify any listening objects.
+Controller ...
+View ...
+
+(for more information, see my whiteboard)
