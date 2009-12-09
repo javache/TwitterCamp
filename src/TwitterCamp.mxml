@@ -25,28 +25,19 @@ THE SOFTWARE.
 						xmlns:mx="library://ns.adobe.com/flex/halo"
 						width="1280" height="1024"
 						layout="absolute" showStatusBar="false"
-						creationComplete="initApplication(event)">
-	<fx:Style source="TwitterCamp.css"/>
+						creationComplete="initApplication(event)" xmlns:views="twittercamp.views.*">
+	<fx:Style source="twittercamp/assets/TwitterCamp.css"/>
 	<fx:Script>
 		<![CDATA[
 			import flash.events.MouseEvent;
 			
-			import mx.controls.Alert;
 			import mx.events.FlexEvent;
-			import mx.rpc.events.FaultEvent;
 			
-			import services.twitter.TwitterSearch;
-			
-			public var twitterSearch:TwitterSearch;
+			import twittercamp.controllers.ApplicationController;
 
 			protected function initApplication(event:FlexEvent):void
 			{
-				twitterSearch = new TwitterSearch("#bcg", 10000);
-				twitterSearch.addEventListener(FaultEvent.FAULT, 
-					function(event:FaultEvent):void {
-						Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail);
-					}
-				);
+				new ApplicationController("#bcg3 OR #bcg", 20);
 			}
 			
 			protected function logo_clickHandler(event:MouseEvent):void
@@ -58,15 +49,17 @@ THE SOFTWARE.
 		]]>
 	</fx:Script>
 	<mx:Canvas width="100%" top="0" bottom="120">
-		<mx:Image source="skins/background.png" scaleContent="true" top="0" left="0" right="0" bottom="0" maintainAspectRatio="false" />
-		<mx:Image source="skins/background_logo.png" verticalCenter="0" horizontalCenter="0" alpha="0.5" width="510" height="294"/>
+		<mx:Image source="twittercamp/assets/background.png" scaleContent="true" top="0" left="0" right="0" bottom="0" maintainAspectRatio="false" />
+		<mx:Image source="twittercamp/assets/background_logo.png" verticalCenter="0" horizontalCenter="0" alpha="0.5" width="510" height="294"/>
+		<views:BubbleGrid left="10" right="10" top="10" bottom="10">
+		</views:BubbleGrid>
 	</mx:Canvas>
 	<mx:Canvas width="100%" height="120" bottom="0" backgroundColor="#F7F7F7" verticalScrollPolicy="off">
 		<s:RichText width="810" height="100%" styleName="LargeText" horizontalCenter="-230" verticalCenter="0">
 			<s:content>
-				To send a message, use hashtag <s:span fontWeight="bold">#bcg</s:span> in your tweet
+				To send a message, use hashtag <s:span fontWeight="bold">#bcg3</s:span> in your tweet
 			</s:content>
 		</s:RichText>
-		<mx:Image source="skins/banner.png" verticalCenter="6" horizontalCenter="394" click="logo_clickHandler(event)" id="logo"/>
+		<mx:Image source="twittercamp/assets/banner.png" verticalCenter="6" horizontalCenter="394" click="logo_clickHandler(event)" id="logo"/>
 	</mx:Canvas>
 </mx:WindowedApplication>

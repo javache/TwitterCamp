@@ -29,8 +29,10 @@
 			import mx.containers.Grid;
 			import mx.containers.GridItem;
 			import mx.containers.GridRow;
-			import com.adobe.twittercamp.utils.Random;
-			import com.adobe.services.twitter.TwitterStatus;
+			
+			import twittercamp.utils.Random;
+			
+			import twittercamp.services.twitter.Tweet;
 		
 			private static const BUBBLE_WIDTH:Number = 325;
 			private static const BUBBLE_HEIGHT:Number = 200;
@@ -48,15 +50,11 @@
 				gridItems = new Array();
 				statusQueue = new Array();
 				statusArchive = new Array();
-				
-				updateTimer = new Timer( Random.randomRange(5000, 10000), 1 );
-				updateTimer.addEventListener( TimerEvent.TIMER, handle_updateTimer );
-				updateTimer.start();
-				
+								
 				createGridChildren();
 			}			
 			
-			private function handle_updateTimer( event:TimerEvent ):void
+/*			private function handle_updateTimer( event:TimerEvent ):void
 			{
 				updateTimer = new Timer( Random.randomRange( 5000, 10000 ), 1 );
 				updateTimer.addEventListener( TimerEvent.TIMER, handle_updateTimer );
@@ -67,14 +65,14 @@
 					var status:TwitterStatus = TwitterStatus( statusQueue.shift() );
 						addStatusBubble( status );
 				}
-			}
+			}*/
 		
-			public function addStatus( status:TwitterStatus ):void
+			public function showStatus(status:Tweet):void
 			{
-				statusQueue.push( status );
+			//	currentlyShowing.push( status );
 			}
 		
-			private function addStatusBubble( status:TwitterStatus ):void
+			private function addStatusBubble( status:Tweet ):void
 			{
 				statusArchive.push( status );
 				

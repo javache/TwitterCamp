@@ -1,4 +1,4 @@
-package services.twitter
+package twittercamp.services.twitter
 {
 
 import com.adobe.serialization.json.JSON;
@@ -9,12 +9,13 @@ import flash.utils.Timer;
 import mx.rpc.events.ResultEvent;
 import mx.rpc.http.HTTPService;
 
-
 /* API for http://apiwiki.twitter.com/Twitter-Search-API-Method:-search */
+
+[Event(name="new tweets", type="services.Twitter.UpdateEvent")]
 
 public class TwitterSearch extends HTTPService
 {
-	private var lastSearchId:int = 0;
+	private var lastSearchId:String = "";
 	private var query:String = "";
 	private var timer:Timer;
 	
@@ -23,13 +24,13 @@ public class TwitterSearch extends HTTPService
 	{	
 		super("http://search.twitter.com/");
 		
-		query = escape(q);
-		
 		// setup http-request
 		method = "GET";	url = "search.json";
 		resultFormat = "text";
+		query = q;
 		
 		addEventListener(ResultEvent.RESULT, requestSuccess);
+		refresh(null);
 		
 		// setup timer
 		timer = new Timer(interval);
@@ -42,7 +43,7 @@ public class TwitterSearch extends HTTPService
 		trace("TwitterSearch::refresh())");
 		
 		var params:Object = {'q': query};
-		if(lastSearchId > 0) params['since_id'] = lastSearchId;
+		if(lastSearchId != "") params['since_id'] = lastSearchId;
 		
 		send(params);
 	}
@@ -50,7 +51,7 @@ public class TwitterSearch extends HTTPService
 	private function requestSuccess(event:ResultEvent):void
 	{
 		trace("TwitterSearch::requestSuccess())");
-		var newStatuses:Vector.<Tweet> = new Vector.<Tweet>();
+		var newStatuses:Array = new Array();
 		
 		// decode the json
 		var json:Object = JSON.decode(String(event.result));
@@ -62,6 +63,13 @@ public class TwitterSearch extends HTTPService
 		{
 			newStatuses.push(new Tweet(tweet));
 		}
+		
+		// sort tweets
+		newStatuses.sortOn("createdAt");
+		
+		// push event
+		trace(newStatuses.length + " new tweets found");
+		dispatchEvent(new UpdateEvent(UpdateEvent.NEW_TWEETS, newStatuses));
 	}
 }
 

@@ -27,7 +27,6 @@
 	-->					   
 	<mx:Script>
 		<![CDATA[
-			import com.adobe.twittercamp.models.TwitterCampModel;
 			import mx.events.EffectEvent;
 			import mx.effects.easing.Exponential;
 			import mx.effects.easing.Cubic;
@@ -35,13 +34,13 @@
 			import mx.effects.easing.Sine;
 			import mx.effects.easing.Bounce;
 			import mx.effects.easing.Elastic;
-			import com.adobe.twittercamp.assets.flash.FlashAssets;
-			import com.adobe.services.twitter.TwitterStatus;
 			
-			private var _twitterStatus:TwitterStatus;
+			import twittercamp.services.twitter.Tweet;
+			
+			private var _twitterStatus:Tweet;
 			
 			public var creationTime:Date = new Date();
-			public var nextStatus:TwitterStatus;
+			public var nextStatus:Tweet;
 			
 			private var updateRelativeTimeLabelTimer:Timer;
 			
@@ -61,10 +60,11 @@
 			
 			private function updateRelativeTime():void
 			{
-				relativeTime.text = (twitterStatus) ? twitterStatus.relativeCreatedAt : "";
+				//relativeTime.text = (twitterStatus) ? twitterStatus.relativeCreatedAt : "";
+				relativeTime.text = "time!";
 			}
 			
-			public function kill( nextStatus:TwitterStatus ):void
+			public function kill( nextStatus:Tweet ):void
 			{
 				creationTime = new Date();
 				this.nextStatus = nextStatus;
@@ -78,12 +78,12 @@
 			}
 			
 			[Bindable]
-			public function set twitterStatus( value:TwitterStatus ):void
+			public function set twitterStatus( value:Tweet ):void
 			{
 				_twitterStatus = value;
 				invalidateDisplayList();
 			}
-			public function get twitterStatus():TwitterStatus
+			public function get twitterStatus():Tweet
 			{
 				return _twitterStatus;
 			}
@@ -111,14 +111,14 @@
 			 easingFunction="{Exponential.easeIn}"
 			 effectEnd="handle_killEffectEnd(event)"/>
 	
-	<mx:SWFLoader source="{FlashAssets.bubble}"
-				  filters="{[new DropShadowFilter( 4, 45, 0x333333, 0.4 )]}" left="10" right="10" top="10" bottom="68"/>
+	<!-- <mx:SWFLoader source="{FlashAssets.bubble}"
+				  filters="{[new DropShadowFilter( 4, 45, 0x333333, 0.4 )]}" left="10" right="10" top="10" bottom="68"/>-->
 	<mx:VBox height="112" width="246" verticalCenter="-28" left="15" verticalAlign="middle">
-		<mx:TextArea fontSize="14" fontWeight="bold" text="{twitterStatus.text}"  width="238" height="100%" backgroundAlpha="0.0" borderThickness="0"/>
+		<mx:TextArea fontSize="14" fontWeight="bold" text="{twitterStatus.content}"  width="238" height="100%" backgroundAlpha="0.0" borderThickness="0"/>
 	</mx:VBox>
-	<controls:SuperImage source="{this.twitterStatus.user.profileImageUrl}"
+	<!-- <controls:SuperImage source="{this.twitterStatus.user.profileImageUrl}"
 						 width="45" height="45" bottom="13" left="28"
-						 borderStyle="solid" borderThickness="2" borderColor="#FFFFFF" alpha="1.0" themeColor="#009DFF"/>
+						 borderStyle="solid" borderThickness="2" borderColor="#FFFFFF" alpha="1.0" themeColor="#009DFF"/> -->
 	<mx:Label text="{this.twitterStatus.user.name}" color="#FFFFFF" fontSize="14" bottom="34" top="140" width="214" right="24" textAlign="left"/>
 	<mx:Label id="relativeTime" color="#FFFFFF" fontSize="12" bottom="13" right="23" left="87" top="166" textAlign="left"/>
 	
