@@ -51,7 +51,7 @@ public class ApplicationController
 		if(tweetQueue.length > 0)
 		{
 			viewTimer.delay = refreshRate / tweetQueue.length;
-			//viewTimer.start();
+			viewTimer.start();
 			updateView(null);
 		}
 		else viewTimer.stop();
@@ -64,8 +64,7 @@ public class ApplicationController
 		
 		if(tweetQueue.length == 0)
 		{
-			viewTimer.stop();
-			return;
+			viewTimer.stop(); return;
 		}
 		
 		// when starting, fill the view as much as possible

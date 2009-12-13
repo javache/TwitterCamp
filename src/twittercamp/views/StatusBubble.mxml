@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
-		   creationComplete="handle_creationComplete()" width="466" height="264" backgroundColor="#FFFFFF" backgroundAlpha="0.0">
-	<mx:Script>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark"
+		   xmlns:mx="library://ns.adobe.com/flex/halo"
+		   creationComplete="handle_creationComplete()" width="450" height="250"
+		   backgroundColor="#FFFFFF" backgroundAlpha="0.0">
+	<fx:Script>
 		<![CDATA[
-			
+			import flash.events.SecurityErrorEvent;
 			import mx.effects.easing.Bounce;
 			import mx.effects.easing.Exponential;
 			import mx.events.EffectEvent;
@@ -12,6 +15,13 @@
 			
 			public var creationTime:Date = new Date();
 			
+			public function set twitterStatus( nextStatus:Tweet ):void
+			{
+				this.nextStatus = nextStatus;
+				kill();
+			}
+			
+			[Bindable]
 			private var status:Tweet;
 			private var nextStatus:Tweet;
 			private var updateRelativeTimeLabelTimer:Timer;
@@ -22,56 +32,67 @@
 				
 				updateRelativeTimeLabelTimer = new Timer( 60000 );
 				updateRelativeTimeLabelTimer.addEventListener( TimerEvent.TIMER, handle_updateRelativeTimeLabelTimer );
-				//updateRelativeTimeLabelTimer.start();
-				
-				updateRelativeTime();
 			}
 			
 			private function handle_updateRelativeTimeLabelTimer( event:TimerEvent ):void
 			{
-				updateRelativeTime();
+				relativeTime.text = status.relativeCreatedAt;
 			}
 			
-			private function updateRelativeTime():void
-			{
-				//relativeTime.text = (twitterStatus) ? twitterStatus.relativeCreatedAt : "";
-			}
-			
-			private function kill( nextStatus:Tweet ):void
+			private function kill():void
 			{
 				creationTime = new Date();
-				this.nextStatus = nextStatus;
-			//	killEffect.play( [this] );
+				killEffect.play([this]);
 			}
 			
 			private function handle_killEffectEnd( event:EffectEvent ):void
 			{
-				twitterStatus = this.nextStatus;
-			//	bounceIn.play();
-			}
-			
-			public function set twitterStatus( value:Tweet ):void
-			{
+				status = nextStatus; nextStatus = null;
+				bounceIn.play([this]);
+				
 				setVisible(true);
-				kill(value);
+				updateRelativeTimeLabelTimer.start();
+				
+				avatar.load(status.user.profileImg);
+				relativeTime.text = status.relativeCreatedAt;
 			}
-			
+
 		]]>
-	</mx:Script>
+	</fx:Script>
+	<fx:Declarations>
+		<mx:Sequence id="bounceIn">
+			<mx:Parallel>
+				<mx:Fade duration="250" alphaFrom="0" alphaTo="1" />
+				<mx:Zoom easingFunction="{Bounce.easeOut}"
+						 zoomHeightFrom="0.5" zoomWidthFrom="0.5"
+						 zoomHeightTo="1" zoomWidthTo="1"
+						 duration="750" />
+			</mx:Parallel>
+		</mx:Sequence>
+		<mx:Fade id="killEffect" alphaFrom="1" alphaTo="0" duration="3000"
+				 easingFunction="{Exponential.easeIn}"
+				 effectEnd="handle_killEffectEnd(event)" />
+	</fx:Declarations>
 	<mx:VBox x="0" y="0" width="100%" height="100%">
 		<mx:Canvas width="100%" height="100%">
-			<mx:SWFLoader source="twittercamp/assets/flash/bubble.swf" maintainAspectRatio="false" scaleContent="true" left="0" right="0" bottom="0" top="0"/>
-			<mx:TextArea contentBackgroundAlpha="0.0" text="Hier komt de inhoud van de Tweet! Hier komt de inhoud van de Tweet! Hier komt de inhoud van de Tweet! Hier komt de inhoud van de Tweet!Hier komt de inhoud van de Tweet!" fontWeight="bold" left="10" right="10" editable="false" borderVisible="false" top="10" bottom="40" verticalScrollPolicy="off"/>			
+			<mx:SWFLoader source="twittercamp/assets/flash/bubble.swf"
+				maintainAspectRatio="false" scaleContent="true" 
+				left="0" right="0" bottom="0" top="0"/>
+			<s:RichText fontWeight="bold" fontSize="14" lineHeight="18" textAlign="left"
+						left="8" right="8" top="8" bottom="30" verticalAlign="middle">
+				<s:content>{status.content}</s:content>
+			</s:RichText>		
 		</mx:Canvas>
 		<mx:HBox width="100%" verticalAlign="middle" horizontalGap="10">
-			<mx:Canvas>
-				<mx:Image left="10" right="10" top="10" bottom="10" source="file:///D:/Desktop/Photo_9_3_bigger.jpg"/>
+			<mx:Canvas dropShadowVisible="true">
+				<mx:Image id="avatar" width="40" height="40" verticalCenter="0" horizontalCenter="0"/>
 			</mx:Canvas>
-			<mx:VBox height="100%" verticalGap="0">
-				<mx:Label text="Username" color="#FFFFFF" fontSize="14"/>
-				<mx:Label text="Time" color="#FFFFFF"/>
+			<mx:VBox height="100%" verticalGap="0" verticalAlign="bottom">
+				<mx:Label id="userName" width="100%" text="{status.user.name}" color="#FFFFFF" fontSize="14"/>
+				<mx:Label id="relativeTime" text="" color="#FFFFFF"/>
 			</mx:VBox>
 		</mx:HBox>
 	</mx:VBox>
+	
 	
 </mx:Canvas>

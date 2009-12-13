@@ -3,6 +3,10 @@ package twittercamp.services.twitter
 	
 import com.adobe.utils.DateUtil;
 
+import flash.xml.XMLDocument;
+
+import twittercamp.utils.RelativeDate;
+
 [Bindable]
 public class Tweet
 {
@@ -16,10 +20,15 @@ public class Tweet
 		// set basic properties
 		createdAt = DateUtil.parseRFC822(data.created_at);		
 		id = data.id;
-		content = data.text;
+		content = new XMLDocument(data.text).firstChild.nodeValue;
 		
 		// find user
 		user = User.lookup(data);
+	}
+	
+	public function get relativeCreatedAt():String
+	{
+		return RelativeDate.relativize(createdAt);
 	}
 
 }

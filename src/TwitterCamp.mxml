@@ -37,7 +37,8 @@ THE SOFTWARE.
 
 			protected function initApplication(event:FlexEvent):void
 			{
-				new ApplicationController(this, "#bcg3 OR #bcg", 20);
+				new ApplicationController(this, "#pickone", 20);
+				//new ApplicationController(this, "#bcg3 OR barcampghent OR barcampgent", 20);
 			}
 			
 			protected function logo_clickHandler(event:MouseEvent):void

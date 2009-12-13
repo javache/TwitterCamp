@@ -15,8 +15,6 @@ public class User
 		this.id = id;
 		this.name = name;
 		this.profileImg = profileImg;
-		
-		// load image?
 	}
 	
 	private static var cache:Dictionary = new Dictionary();
