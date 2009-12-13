@@ -1,219 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
-		   horizontalScrollPolicy="off" verticalScrollPolicy="off"
-		   creationComplete="handle_creationComplete()"
-		   resize="createGridChildren()">
-	<!--
-	Copyright (c) 2007 Daniel Dura
-	
-	Permission is hereby granted, free of charge, to any person obtaining a copy
-	of this software and associated documentation files (the "Software"), to deal
-	in the Software without restriction, including without limitation the rights
-	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the Software is
-	furnished to do so, subject to the following conditions:
-	
-	The above copyright notice and this permission notice shall be included in
-	all copies or substantial portions of the Software.
-	
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-	THE SOFTWARE.
-	-->					   
+		   creationComplete="handle_creationComplete()">
 	<mx:Script>
 		<![CDATA[
 			import mx.containers.Grid;
 			import mx.containers.GridItem;
 			import mx.containers.GridRow;
-			
-			import twittercamp.utils.Random;
+			import mx.events.ResizeEvent;
 			
 			import twittercamp.services.twitter.Tweet;
-		
-			private static const BUBBLE_WIDTH:Number = 325;
-			private static const BUBBLE_HEIGHT:Number = 200;
 			
-			private var statusArchive:Array;
-			private var statusQueue:Array;
-			private var updateTimer:Timer;
-			private var gridItems:Array;
-			private var bubbles:Array;
-			private var bubbleGrid:Grid;
+			public var rows:int = 3;
+			public var columns:int = 4;
+			public var padding:int = 30;
+			
+			private var bubbleWidth:int = -1;
+			private var bubbleHeight:int = -1;
+			private var bubbleItems:Array;
+			private var nextBubble:int = 0;
+			
+			public function getSize():int
+			{
+				return rows * columns;
+			}
+			
+			public function showTweet(tweet:Tweet):void
+			{
+				bubbleItems[nextBubble].twitterStatus = tweet;
+				
+				nextBubble = (nextBubble + 1) % getSize();
+			}
 			
 			private function handle_creationComplete():void
 			{
-				bubbles = new Array();
-				gridItems = new Array();
-				statusQueue = new Array();
-				statusArchive = new Array();
-								
-				createGridChildren();
-			}			
-			
-/*			private function handle_updateTimer( event:TimerEvent ):void
-			{
-				updateTimer = new Timer( Random.randomRange( 5000, 10000 ), 1 );
-				updateTimer.addEventListener( TimerEvent.TIMER, handle_updateTimer );
-				updateTimer.start();
-				
-				if( statusQueue && statusQueue.length > 0 )
+				bubbleItems = new Array();
+				for(var i:int = 0; i < rows; i++)
 				{
-					var status:TwitterStatus = TwitterStatus( statusQueue.shift() );
-						addStatusBubble( status );
-				}
-			}*/
-		
-			public function showStatus(status:Tweet):void
-			{
-				addStatusBubble(status);
-			}
-		
-			private function addStatusBubble( status:Tweet ):void
-			{
-				statusArchive.push( status );
-				
-				if( countEmptyGridItems() > 0 )
-				{
-					var gridItem:GridItem = getRandomEmptyGridItem();
-					if( gridItem )
+					var row:GridRow = new GridRow();
+					for(var j:int = 0; j < columns; j++)
 					{
-						var bubble:StatusBubble = StatusBubble( gridItem.addChild( new StatusBubble() ) );
-							bubble.addEventListener( "killed", handle_bubbleKilled );
-							bubble.twitterStatus = status;
-							
+						var bubble:StatusBubble = new StatusBubble();
+						bubbleItems.push(bubble);
+						
+						GridItem(row.addChild(new GridItem())).addChild(bubble);
 					}
-				}
-				else
-				{
-					var statusBubble:StatusBubble = getOldestStatusBubble();
-						statusBubble.kill( status );
-				}
-			}		
-			
-			private function getRandomEmptyGridItem():GridItem
-			{
-				var emptyItems:int = countEmptyGridItems();
-				
-				if( emptyItems > 0 )
-				{
-					var gridItemIndex:int = Random.randomRange( 1, emptyItems );
-					var emptyGridItemCount:int = 0;
-					
-					for( var i:int = 0; i < gridItems.length; i++ )
-					{
-						if( GridItem( gridItems[i] ).getChildren().length == 0 )
-							emptyGridItemCount++;
-						if( gridItemIndex == emptyGridItemCount )
-							return GridItem( gridItems[ i ] );
-					}
-				}				
-				return null;
-			}
-			
-			private function getOldestStatusBubble():StatusBubble
-			{
-				var oldestBubble:StatusBubble;
-				var currentBubble:StatusBubble;
-				
-				for( var i:int = 0; i < gridItems.length; i++ )
-				{
-					var gridItem:GridItem = GridItem( gridItems[ i ] );
-					currentBubble = StatusBubble( gridItem.getChildren()[0] );
-					
-					if( !oldestBubble || oldestBubble.creationTime.time > currentBubble.creationTime.time )
-						oldestBubble = currentBubble;	
+					grid.addChild(row);
 				}
 				
-				return oldestBubble;
-			}
-			
-			private function countEmptyGridItems():int
-			{
-				var count:int;
-				for( var i:int = 0; i < gridItems.length; i++ )
+				for each(var prop:String in [
+					"paddingLeft", "paddingRight", "paddingTop", 
+					"paddingBottom", "verticalGap", "horizontalGap"])
 				{
-					if( GridItem( gridItems[i] ).getChildren().length == 0 )
-						count++;
+					grid.setStyle(prop, padding);
 				}
-				return count;
+				
+				updateGridChildren(null);
+				addEventListener(ResizeEvent.RESIZE, updateGridChildren);
 			}
 			
-			private function handle_bubbleKilled( event:Event ):void
+			private function updateGridChildren(event:ResizeEvent):void
 			{
-				addStatusBubble( StatusBubble( event.target ).nextStatus );
-			}
-			
-			private var numColumns:int;
-			private var numRows:int;
-			
-			private function createGridChildren():void
-			{
-				if( initialized )
+				// calculate bubble width and height
+				bubbleWidth = Math.floor((width - (columns + 1)*padding) / columns); 
+				bubbleHeight = Math.floor((height - (rows + 1)*padding) / rows);
+				trace("Bubble size is ", bubbleWidth, "x", bubbleHeight);
+				
+				for each(var bubble:StatusBubble in bubbleItems)
 				{
-					var newNumColumns:int = Math.floor( width / BUBBLE_WIDTH );
-					var newNumRows:int = Math.floor( height / BUBBLE_HEIGHT );
-		
-					if( newNumColumns != numColumns || newNumRows != numRows )
-					{
-							
-						if( !bubbleGrid )
-						{
-							bubbleGrid = Grid( addChild( new Grid() ) );
-							bubbleGrid.setStyle("verticalCenter", 0 );
-							bubbleGrid.setStyle("horizontalCenter", 0 );
-							bubbleGrid.setStyle("verticalGap", 0 );
-							bubbleGrid.setStyle("horizontalGap", 0 );
-						}
-						else
-							bubbleGrid.removeAllChildren();
-						
-						//var oldGridItems:Array = gridItems;
-						gridItems = new Array();
-						
-						numColumns = newNumColumns;
-						numRows = newNumRows;
-						var numGridItems:int = numColumns * numRows;
-						
-						var currentStatuses:Array = ( numGridItems > statusArchive.length ) ? 
-														statusArchive : 
-														statusArchive.slice( statusArchive.length - numGridItems );
-						
-						bubbleGrid.width = numColumns * BUBBLE_WIDTH;
-						bubbleGrid.height = numRows * BUBBLE_HEIGHT;
-						
-						for( var row:int = 0; row < numRows; row++ )
-						{
-							var gridRow:GridRow = GridRow( bubbleGrid.addChild( new GridRow() ) );
-							gridRow.width = numColumns * BUBBLE_WIDTH;
-							gridRow.height = BUBBLE_HEIGHT;
-							
-							for( var column:Number = 0; column < numColumns; column++ )
-							{
-								var gridItem:GridItem;
-								gridItem = GridItem( gridRow.addChild( new GridItem() ) );
-								gridItem.width = BUBBLE_WIDTH;
-								gridItem.height = BUBBLE_HEIGHT;
-								gridItems.push( gridItem );
-							}
-						}
-						
-						for( var i:int = 0; i < currentStatuses.length; i++ )
-						{
-							var statusBubble:StatusBubble = new StatusBubble();
-							statusBubble.twitterStatus = currentStatuses[i];
-							statusBubble.width = BUBBLE_WIDTH;
-							statusBubble.height = BUBBLE_HEIGHT;
-							getRandomEmptyGridItem().addChild( statusBubble );
-						}
-						
-					}
+					bubble.width = bubbleWidth;
+					bubble.height = bubbleHeight;
 				}
 			}
-			
 		]]>
-	</mx:Script>		   
+	</mx:Script>
+	<mx:Grid id="grid"></mx:Grid>
 </mx:Canvas>

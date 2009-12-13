@@ -1,6 +1,9 @@
 package twittercamp.controllers
 {
 	
+import flash.events.TimerEvent;
+import flash.utils.Timer;
+
 import mx.controls.Alert;
 import mx.rpc.events.FaultEvent;
 
@@ -15,7 +18,8 @@ public class ApplicationController
 	
 	private var bubbleGrid:BubbleGrid;
 	private var searchModel:TwitterSearch;
-	public var tweetQueue:Array;
+	private var tweetQueue:Array;
+	private var viewTimer:Timer;
 
 	public function ApplicationController(view:TwitterCamp, query:String, refreshRateSeconds:int)
     {
@@ -25,19 +29,65 @@ public class ApplicationController
 		tweetQueue = new Array();
 		bubbleGrid = view.bubbleGrid;
 		
+		// create searchModel
 		searchModel = new TwitterSearch(query, refreshRate);
 		searchModel.addEventListener(UpdateEvent.NEW_TWEETS, fillQueue);
 		searchModel.addEventListener(FaultEvent.FAULT, function(event:FaultEvent):void
 		{
 			Alert.show(event.fault.faultString, "An error occured.");
 		});
+		
+		// create timer to update view
+		viewTimer = new Timer(0);
+		viewTimer.addEventListener(TimerEvent.TIMER, updateView);
     }
 	
 	private function fillQueue(event:UpdateEvent):void
 	{
 		// add to queue
 		tweetQueue = tweetQueue.concat(event.newStatuses);
+		
+		// modify viewTimer timeout
+		if(tweetQueue.length > 0)
+		{
+			viewTimer.delay = refreshRate / tweetQueue.length;
+			//viewTimer.start();
+			updateView(null);
+		}
+		else viewTimer.stop();
 	}
-}
-
+	
+	private var inited:Boolean = true;
+	private function updateView(event:TimerEvent):void
+	{
+		trace("ApplicationController::updateView()");
+		
+		if(tweetQueue.length == 0)
+		{
+			viewTimer.stop();
+			return;
+		}
+		
+		// when starting, fill the view as much as possible
+		if(!inited)
+		{
+			var size:int = bubbleGrid.getSize();
+			
+			var i:int = 0;
+			while(i < size && tweetQueue.length > 0)
+			{
+				bubbleGrid.showTweet(tweetQueue.shift());
+				i++;
+			}
+			
+			inited = true;
+			viewTimer.stop();
+		}
+		else
+		{
+			bubbleGrid.showTweet(tweetQueue.shift());
+		}
+	}
+}	
+	
 }
