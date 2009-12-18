@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
-		   creationComplete="handle_creationComplete()">
+		   creationComplete="handle_creationComplete()"
+		   verticalScrollPolicy="off"
+		   horizontalScrollPolicy="off">
 	<mx:Script>
 		<![CDATA[
 			import mx.containers.Grid;
@@ -14,6 +16,7 @@
 			public var columns:int = 4;
 			public var padding:int = 30;
 			
+			private var firstBubble:StatusBubble;
 			private var bubbleWidth:int = -1;
 			private var bubbleHeight:int = -1;
 			private var bubbleItems:Array;
@@ -21,14 +24,21 @@
 			
 			public function getSize():int
 			{
-				return rows * columns;
+				return rows * columns - 4;
 			}
 			
 			public function showTweet(tweet:Tweet):void
 			{
-				bubbleItems[nextBubble].twitterStatus = tweet;
+				var last:Tweet = firstBubble.twitterStatus;
+				firstBubble.twitterStatus = tweet;
 				
-				nextBubble = (nextBubble + 1) % getSize();
+				trace("Pushing tweet" + tweet.content);
+				
+				if(last != null)
+				{
+					bubbleItems[nextBubble].twitterStatus = last;
+					nextBubble = (nextBubble + 1) % getSize();
+				}
 			}
 			
 			private function handle_creationComplete():void
@@ -37,15 +47,33 @@
 				for(var i:int = 0; i < rows; i++)
 				{
 					var row:GridRow = new GridRow();
+										
 					for(var j:int = 0; j < columns; j++)
 					{
-						var bubble:StatusBubble = new StatusBubble();
-						bubbleItems.push(bubble);
-						
-						GridItem(row.addChild(new GridItem())).addChild(bubble);
+						// create huge cell
+						if(i == 0 && j == 1)
+						{
+							firstBubble = new StatusBubble();
+							
+							var cell:GridItem = new GridItem();
+							cell.addChild(firstBubble);
+							cell.rowSpan = 2;
+							cell.colSpan = 2;
+							
+							row.addChild(cell);
+						}
+						else
+						{
+							if((i == 0 || i == 1) && (j == 1 || j == 2)) continue;
+							
+							var bubble:StatusBubble = new StatusBubble();
+							bubbleItems.push(bubble);
+							
+							GridItem(row.addChild(new GridItem())).addChild(bubble);
+						}
 					}
 					grid.addChild(row);
-				}
+				}			
 				
 				for each(var prop:String in [
 					"paddingLeft", "paddingRight", "paddingTop", 
@@ -64,6 +92,11 @@
 				bubbleWidth = Math.floor((width - (columns + 1)*padding) / columns); 
 				bubbleHeight = Math.floor((height - (rows + 1)*padding) / rows);
 				trace("Bubble size is ", bubbleWidth, "x", bubbleHeight);
+				
+				firstBubble.width = 2*bubbleWidth;
+				firstBubble.height = 2*bubbleHeight;
+				GridItem(firstBubble.parent).setStyle("paddingLeft", padding/2)
+				GridItem(firstBubble.parent).setStyle("paddingRight", padding/2);
 				
 				for each(var bubble:StatusBubble in bubbleItems)
 				{

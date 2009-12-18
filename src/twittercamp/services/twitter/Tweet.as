@@ -20,6 +20,7 @@ public class Tweet
 		// set basic properties
 		createdAt = DateUtil.parseRFC822(data.created_at);		
 		id = data.id;
+		
 		content = new XMLDocument(data.text).firstChild.nodeValue;
 		
 		// find user

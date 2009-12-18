@@ -2,18 +2,28 @@
 <mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		   xmlns:s="library://ns.adobe.com/flex/spark"
 		   xmlns:mx="library://ns.adobe.com/flex/halo"
-		   creationComplete="handle_creationComplete()" width="450" height="250"
+		   creationComplete="handle_creationComplete()" 
+		   resize="handle_resizeHandler(event)"
+		   width="450" height="250"
 		   backgroundColor="#FFFFFF" backgroundAlpha="0.0">
+	<fx:Style source="twittercamp/assets/TwitterCamp.css"/>
 	<fx:Script>
 		<![CDATA[
-			import flash.events.SecurityErrorEvent;
 			import mx.effects.easing.Bounce;
 			import mx.effects.easing.Exponential;
 			import mx.events.EffectEvent;
+			import mx.events.ResizeEvent;
+			
+			import spark.utils.TextFlowUtil;
 			
 			import twittercamp.services.twitter.Tweet;
 			
 			public var creationTime:Date = new Date();
+			
+			public function get twitterStatus():Tweet
+			{
+				return nextStatus;
+			}
 			
 			public function set twitterStatus( nextStatus:Tweet ):void
 			{
@@ -47,14 +57,42 @@
 			
 			private function handle_killEffectEnd( event:EffectEvent ):void
 			{
-				status = nextStatus; nextStatus = null;
+				status = nextStatus;
 				bounceIn.play([this]);
 				
 				setVisible(true);
 				updateRelativeTimeLabelTimer.start();
 				
-				avatar.load(status.user.profileImg);
-				relativeTime.text = status.relativeCreatedAt;
+				if(status != null)
+				{
+					avatar.load(status.user.profileImg);
+					content.textFlow = TextFlowUtil.importFromString(status.content);
+					relativeTime.text = status.relativeCreatedAt;
+				}
+				else
+				{
+					trace(status);
+				}
+			}
+
+
+			protected function handle_resizeHandler(event:ResizeEvent):void
+			{
+				// set font size
+				var fontSize:int = Math.max(14, content.height / 9);
+				content.setStyle("fontSize", fontSize);
+				content.setStyle("lineHeight", fontSize*1.4);
+				
+				userName.setStyle("fontSize", fontSize);
+				relativeTime.setStyle("fontSize", Math.max(12, fontSize*0.6));
+				
+				// set tweet padding
+				content.left = fontSize;
+				content.right = fontSize;
+				
+				// change avatar size
+				avatar.height = fontSize * 2.8;
+				avatar.width = fontSize * 2.8;
 			}
 
 		]]>
@@ -79,17 +117,18 @@
 				maintainAspectRatio="false" scaleContent="true" 
 				left="0" right="0" bottom="0" top="0"/>
 			<s:RichText fontWeight="bold" fontSize="14" lineHeight="18" textAlign="left"
-						left="8" right="8" top="8" bottom="30" verticalAlign="middle">
-				<s:content>{status.content}</s:content>
+						left="14" right="14" top="8" bottom="35" verticalAlign="middle"
+						id="content">
+				<s:content></s:content>
 			</s:RichText>		
 		</mx:Canvas>
 		<mx:HBox width="100%" verticalAlign="middle" horizontalGap="10">
 			<mx:Canvas dropShadowVisible="true">
 				<mx:Image id="avatar" width="40" height="40" verticalCenter="0" horizontalCenter="0"/>
 			</mx:Canvas>
-			<mx:VBox height="100%" verticalGap="0" verticalAlign="bottom">
+			<mx:VBox height="100%" width="100%" verticalGap="0" verticalAlign="bottom">
 				<mx:Label id="userName" width="100%" text="{status.user.name}" color="#FFFFFF" fontSize="14"/>
-				<mx:Label id="relativeTime" text="" color="#FFFFFF"/>
+				<mx:Label id="relativeTime" width="100%" text="" color="#FFFFFF"/>
 			</mx:VBox>
 		</mx:HBox>
 	</mx:VBox>

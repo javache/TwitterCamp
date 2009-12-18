@@ -50,7 +50,7 @@ public class ApplicationController
 		// modify viewTimer timeout
 		if(tweetQueue.length > 0)
 		{
-			viewTimer.delay = refreshRate / tweetQueue.length;
+			viewTimer.delay = refreshRate * 3 / tweetQueue.length;
 			viewTimer.start();
 			updateView(null);
 		}
@@ -59,33 +59,13 @@ public class ApplicationController
 	
 	private var inited:Boolean = true;
 	private function updateView(event:TimerEvent):void
-	{
-		trace("ApplicationController::updateView()");
-		
+	{		
 		if(tweetQueue.length == 0)
 		{
 			viewTimer.stop(); return;
 		}
-		
-		// when starting, fill the view as much as possible
-		if(!inited)
-		{
-			var size:int = bubbleGrid.getSize();
-			
-			var i:int = 0;
-			while(i < size && tweetQueue.length > 0)
-			{
-				bubbleGrid.showTweet(tweetQueue.shift());
-				i++;
-			}
-			
-			inited = true;
-			viewTimer.stop();
-		}
-		else
-		{
-			bubbleGrid.showTweet(tweetQueue.shift());
-		}
+
+		bubbleGrid.showTweet(tweetQueue.shift());
 	}
 }	
 	

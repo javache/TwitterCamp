@@ -11,35 +11,35 @@ public class RelativeDate
 		
 		if( delta < 0 )
 		{
-			return 'in the future';
+			return 'in de toekomst';
 		}
 		if( delta < 60 )
 		{
-			return 'less than a minute ago';
+			return 'minder dan een minuut geleden';
 		}
 		else if( delta < 120 )
 		{
-			return 'about a minute ago';
+			return 'ongeveer een minuut geleden';
 		}
 		else if( delta < ( 45 * 60 ) )
 		{
-			return Math.floor(delta / 60) + ' minutes ago';
+			return Math.floor(delta / 60) + ' minuten geleden';
 		}
-		else if( delta < ( 90 * 60 ) )
+		else if( delta < ( 90 * 60 ) || Math.floor(delta / 3600) <= 1)
 		{
-			return 'about an hour ago';
+			return 'ongeveer een uur geleden';
 		}
 		else if( delta < ( 24 * 60 * 60 ) )
 		{
-			return 'about ' + Math.floor(delta / 3600) + ' hours ago';
+			return 'ongeveer ' + Math.floor(delta / 3600) + ' uren geleden';
 		}
 		else if(delta < (48*60*60) )
 		{
-			return '1 day ago';
+			return '1 dag geleden';
 		}
 		else if( delta >= (48*60*60) )
 		{
-			return Math.floor(delta / 86400) + ' days ago';
+			return Math.floor(delta / 86400) + ' dagen geleden';
 		}
 		return null;
 	}

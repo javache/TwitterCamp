@@ -37,8 +37,7 @@ THE SOFTWARE.
 
 			protected function initApplication(event:FlexEvent):void
 			{
-				new ApplicationController(this, "#pickone", 20);
-				//new ApplicationController(this, "#bcg3 OR barcampghent OR barcampgent", 20);
+				new ApplicationController(this, "#bcg3 OR barcampghent OR barcampgent", 20);
 			}
 			
 			protected function logo_clickHandler(event:MouseEvent):void
@@ -57,7 +56,7 @@ THE SOFTWARE.
 	<mx:Canvas width="100%" height="120" bottom="0" backgroundColor="#F7F7F7" verticalScrollPolicy="off">
 		<s:RichText width="810" height="100%" styleName="LargeText" horizontalCenter="-230" verticalCenter="0">
 			<s:content>
-				To send a message, use hashtag <s:span fontWeight="bold">#bcg3</s:span> in your tweet
+				Om een bericht te sturen, gebruik de hashtag <s:span fontWeight="bold">#bcg3</s:span>
 			</s:content>
 		</s:RichText>
 		<mx:Image source="twittercamp/assets/banner.png" verticalCenter="6" horizontalCenter="394" click="logo_clickHandler(event)" id="logo"/>
