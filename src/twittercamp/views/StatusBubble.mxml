@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
-		   xmlns:s="library://ns.adobe.com/flex/spark"
-		   xmlns:mx="library://ns.adobe.com/flex/halo"
+<mx:Canvas xmlns:s="library://ns.adobe.com/flex/spark"
+		   xmlns:mx="http://www.adobe.com/2006/mxml"
 		   creationComplete="handle_creationComplete()" 
 		   resize="handle_resizeHandler(event)"
 		   width="450" height="250"
 		   backgroundColor="#FFFFFF" backgroundAlpha="0.0">
-	<fx:Style source="twittercamp/assets/TwitterCamp.css"/>
-	<fx:Script>
+	<mx:Style source="twittercamp/assets/TwitterCamp.css"/>
+	<mx:Script>
 		<![CDATA[
 			import mx.effects.easing.Bounce;
 			import mx.effects.easing.Exponential;
@@ -42,6 +41,8 @@
 				
 				updateRelativeTimeLabelTimer = new Timer( 60000 );
 				updateRelativeTimeLabelTimer.addEventListener( TimerEvent.TIMER, handle_updateRelativeTimeLabelTimer );
+				
+				handle_resizeHandler(null);
 			}
 			
 			private function handle_updateRelativeTimeLabelTimer( event:TimerEvent ):void
@@ -96,28 +97,26 @@
 			}
 
 		]]>
-	</fx:Script>
-	<fx:Declarations>
-		<mx:Sequence id="bounceIn">
-			<mx:Parallel>
-				<mx:Fade duration="250" alphaFrom="0" alphaTo="1" />
-				<mx:Zoom easingFunction="{Bounce.easeOut}"
-						 zoomHeightFrom="0.5" zoomWidthFrom="0.5"
-						 zoomHeightTo="1" zoomWidthTo="1"
-						 duration="750" />
-			</mx:Parallel>
-		</mx:Sequence>
-		<mx:Fade id="killEffect" alphaFrom="1" alphaTo="0" duration="3000"
-				 easingFunction="{Exponential.easeIn}"
-				 effectEnd="handle_killEffectEnd(event)" />
-	</fx:Declarations>
+	</mx:Script>
+	<mx:Sequence id="bounceIn">
+		<mx:Parallel>
+			<mx:Fade duration="250" alphaFrom="0" alphaTo="1" />
+			<mx:Zoom easingFunction="{Bounce.easeOut}"
+					 zoomHeightFrom="0.5" zoomWidthFrom="0.5"
+					 zoomHeightTo="1" zoomWidthTo="1"
+					 duration="750" />
+		</mx:Parallel>
+	</mx:Sequence>
+	<mx:Fade id="killEffect" alphaFrom="1" alphaTo="0" duration="3000"
+			 easingFunction="{Exponential.easeIn}"
+			 effectEnd="handle_killEffectEnd(event)" />
 	<mx:VBox x="0" y="0" width="100%" height="100%">
 		<mx:Canvas width="100%" height="100%">
 			<mx:SWFLoader source="twittercamp/assets/flash/bubble.swf"
 				maintainAspectRatio="false" scaleContent="true" 
 				left="0" right="0" bottom="0" top="0"/>
 			<s:RichText fontWeight="bold" fontSize="14" lineHeight="18" textAlign="left"
-						left="14" right="14" top="8" bottom="35" verticalAlign="middle"
+						left="14" right="14" top="8" bottom="27" verticalAlign="middle"
 						id="content">
 				<s:content></s:content>
 			</s:RichText>		

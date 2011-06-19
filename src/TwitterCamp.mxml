@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Copyright (c) 2009 Pieter De Baets
+Copyright (c) 2011 Pieter De Baets
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,27 +20,22 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
-<mx:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
-						xmlns:s="library://ns.adobe.com/flex/spark"
-						xmlns:mx="library://ns.adobe.com/flex/halo"
-						width="1280" height="1024"
-						layout="absolute" showStatusBar="false"
-						creationComplete="initApplication(event)" xmlns:views="twittercamp.views.*">
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark"
+					   xmlns:views="twittercamp.views.*"
+					   width="800" height="600" showStatusBar="false"
+					   creationComplete="initApplication()">
 	<fx:Style source="twittercamp/assets/TwitterCamp.css"/>
 	<fx:Script>
 		<![CDATA[
-			import flash.events.MouseEvent;
-			
-			import mx.events.FlexEvent;
-			
 			import twittercamp.controllers.ApplicationController;
 
-			protected function initApplication(event:FlexEvent):void
+			protected function initApplication():void
 			{
-				new ApplicationController(this, "#bcg3 OR barcampghent OR barcampgent", 20);
+				ApplicationController.getInstance().init(this);
 			}
 			
-			protected function logo_clickHandler(event:MouseEvent):void
+			protected function toggleFullscreen():void
 			{
 				if(stage.displayState == StageDisplayState.NORMAL)
 					stage.displayState = StageDisplayState.FULL_SCREEN_INTERACTIVE
@@ -48,17 +43,22 @@ THE SOFTWARE.
 			}
 		]]>
 	</fx:Script>
-	<mx:Canvas width="100%" top="0" bottom="120">
-		<mx:Image source="twittercamp/assets/background.png" scaleContent="true" top="0" left="0" right="0" bottom="0" maintainAspectRatio="false" />
-		<mx:Image source="twittercamp/assets/background_logo.png" verticalCenter="0" horizontalCenter="0" alpha="0.5" width="510" height="294"/>
+	<s:Group width="100%" top="0" bottom="120">
+		<s:BitmapImage top="0" right="0" bottom="0" left="0"
+					   	source="@Embed('twittercamp/assets/background.png')" />
+		<s:BitmapImage verticalCenter="0" horizontalCenter="0"
+					   width="510" height="294"
+					   source="@Embed('twittercamp/assets/background_logo.png')" alpha="0.5" />
 		<views:BubbleGrid id="bubbleGrid" left="0" right="0" top="0" bottom="0" />
-	</mx:Canvas>
-	<mx:Canvas width="100%" height="120" bottom="0" backgroundColor="#F7F7F7" verticalScrollPolicy="off">
-		<s:RichText width="810" height="100%" styleName="LargeText" horizontalCenter="-230" verticalCenter="0">
+	</s:Group>
+	<s:Group width="100%" height="120" bottom="0">
+		<s:RichText width="650" height="100%" styleName="LargeText" horizontalCenter="-170" verticalCenter="0">
 			<s:content>
-				Om een bericht te sturen, gebruik de hashtag <s:span fontWeight="bold">#bcg3</s:span>
+				Om een bericht te sturen, gebruik de hashtag <s:span fontWeight="bold">#bcg4</s:span>
 			</s:content>
 		</s:RichText>
-		<mx:Image source="twittercamp/assets/banner.png" verticalCenter="6" horizontalCenter="394" click="logo_clickHandler(event)" id="logo"/>
-	</mx:Canvas>
-</mx:WindowedApplication>
+		<s:Graphic verticalCenter="8" horizontalCenter="320" click="toggleFullscreen()">
+			<s:BitmapImage source="@Embed('twittercamp/assets/banner.png')"/>
+		</s:Graphic>
+	</s:Group>
+</s:WindowedApplication>
